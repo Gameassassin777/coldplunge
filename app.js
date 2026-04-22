@@ -13,7 +13,7 @@
             sound: true,
             manualGoal: null,
             apiKey: '',
-            aiModel: 'gemini-2.5-pro'
+            aiModel: 'gemini-2.5-flash'
         },
         timer: {
             running: false,
@@ -968,7 +968,7 @@ RECENT SESSIONS (last ${last10.length}):
         els.soundToggle.checked = state.settings.sound;
         els.manualGoal.value = state.settings.manualGoal || '';
         els.apiKey.value = state.settings.apiKey || '';
-        els.aiModel.value = state.settings.aiModel || 'gemini-2.5-pro';
+        els.aiModel.value = state.settings.aiModel || 'gemini-2.5-flash';
     }
 
     function saveSettings() {

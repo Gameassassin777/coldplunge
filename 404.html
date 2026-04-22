@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#f0faf5">
+    <link rel="manifest" href="manifest.json">
+    <title>Cold Plunge Tracker 🌴</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-page="timer">🌊 Timer</button>
+            <button class="nav-btn" data-page="history">📊 History</button>
+            <button class="nav-btn" data-page="chat">🤖 Coach</button>
+            <button class="nav-btn" data-page="settings">⚙️ Settings</button>
+        </nav>
+
+        <!-- Timer Page -->
+        <div id="page-timer" class="page active">
+            <div class="tropical-header">
+                <h1>🌴 Cold Plunge 🌴</h1>
+                <p class="subtitle">Embrace the chill, island style</p>
+            </div>
+
+            <!-- Dopamine Stats Bar -->
+            <div class="dopamine-bar">
+                <div class="dopa-stat">
+                    <span class="dopa-value" id="dopaStreak">0</span>
+                    <span class="dopa-label">🔥 Streak</span>
+                </div>
+                <div class="dopa-divider"></div>
+                <div class="dopa-stat">
+                    <span class="dopa-value" id="dopaTotal">0</span>
+                    <span class="dopa-label">💧 Sessions</span>
+                </div>
+                <div class="dopa-divider"></div>
+                <div class="dopa-stat">
+                    <span class="dopa-value" id="dopaLevel">🥥</span>
+                    <span class="dopa-label">Rank</span>
+                </div>
+            </div>
+
+            <!-- Achievement Banner -->
+            <div class="achievement-banner hidden" id="achievementBanner">
+                <span class="achievement-icon" id="achievementIcon">🏆</span>
+                <span class="achievement-text" id="achievementText">Achievement unlocked!</span>
+            </div>
+
+            <!-- Next Milestone -->
+            <div class="milestone-card" id="milestoneCard">
+                <div class="milestone-header">
+                    <span>🏝️ Next Milestone</span>
+                    <span class="milestone-name" id="milestoneName">First Plunge</span>
+                </div>
+                <div class="milestone-progress-bar">
+                    <div class="milestone-fill" id="milestoneFill" style="width: 0%"></div>
+                </div>
+                <span class="milestone-detail" id="milestoneDetail">Complete your first session!</span>
+            </div>
+
+            <!-- Timer -->
+            <div class="timer-container">
+                <div class="timer-ring" id="timerRing">
+                    <svg viewBox="0 0 200 200">
+                        <circle class="ring-bg" cx="100" cy="100" r="90" />
+                        <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="90" />
+                    </svg>
+                    <div class="timer-display">
+                        <span id="timerText">0:00</span>
+                        <span class="timer-label" id="timerLabel">READY</span>
+                    </div>
+                </div>
+                <div class="goal-display">
+                    <span class="goal-icon">🎯</span>
+                    <span id="goalText">Goal: 1:00</span>
+                </div>
+                <div class="overclock-badge hidden" id="overclockBadge">
+                    <span>🔥 OVERCLOCKING +<span id="overclockTime">0</span>s</span>
+                </div>
+                <div class="timer-controls">
+                    <button class="btn btn-start" id="btnStart">🏄 Start</button>
+                    <button class="btn btn-stop hidden" id="btnStop">🛑 Stop</button>
+                </div>
+            </div>
+
+            <!-- Quick Stats Cards -->
+            <div class="quick-stats">
+                <div class="quick-card">
+                    <div class="quick-card-icon">⏱️</div>
+                    <div class="quick-card-value" id="qsBest">-</div>
+                    <div class="quick-card-label">Personal Best</div>
+                </div>
+                <div class="quick-card">
+                    <div class="quick-card-icon">📈</div>
+                    <div class="quick-card-value" id="qsTrend">-</div>
+                    <div class="quick-card-label">Trend</div>
+                </div>
+                <div class="quick-card">
+                    <div class="quick-card-icon">🔥</div>
+                    <div class="quick-card-value" id="qsOverclocks">0</div>
+                    <div class="quick-card-label">Overclocks</div>
+                </div>
+                <div class="quick-card">
+                    <div class="quick-card-icon">🧊</div>
+                    <div class="quick-card-value" id="qsTotalTime">0:00</div>
+                    <div class="quick-card-label">Total Cold</div>
+                </div>
+            </div>
+
+            <!-- Weekly Heatmap -->
+            <div class="weekly-card">
+                <div class="weekly-header">This Week</div>
+                <div class="weekly-dots" id="weeklyDots"></div>
+            </div>
+
+            <!-- Motivational Quote -->
+            <div class="quote-card" id="quoteCard">
+                <span class="quote-text" id="quoteText">"The water doesn't get easier. You get stronger."</span>
+            </div>
+
+            <!-- Good Job Overlay -->
+            <div class="good-job-overlay hidden" id="goodJobOverlay">
+                <div class="good-job-content">
+                    <div class="palm-trees">🌴🎉🌴</div>
+                    <h2>Good Job!</h2>
+                    <p id="goodJobMessage">You crushed it!</p>
+                    <div class="good-job-stats">
+                        <div class="stat">
+                            <span class="stat-value" id="gjTime">0:00</span>
+                            <span class="stat-label">Time</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="gjGoal">0:00</span>
+                            <span class="stat-label">Goal</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="gjOverclock">-</span>
+                            <span class="stat-label">Overclock</span>
+                        </div>
+                    </div>
+                    <div class="good-job-xp hidden" id="gjXpContainer">
+                        <span class="xp-badge" id="gjXp">+0 XP</span>
+                    </div>
+                    <div class="good-job-achievement hidden" id="gjAchievement">
+                        <span id="gjAchievementText">🏆 Achievement Unlocked!</span>
+                    </div>
+                    <button class="btn btn-dismiss" id="btnDismiss">🌺 Nice!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Page -->
+        <div id="page-history" class="page">
+            <div class="tropical-header">
+                <h1>📊 Your Journey</h1>
+                <p class="subtitle">Every second counts</p>
+            </div>
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <span class="stat-card-value" id="totalSessions">0</span>
+                    <span class="stat-card-label">Sessions</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card-value" id="currentStreak">0</span>
+                    <span class="stat-card-label">Day Streak 🔥</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card-value" id="longestTime">0:00</span>
+                    <span class="stat-card-label">Longest 🏆</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card-value" id="totalTime">0:00</span>
+                    <span class="stat-card-label">Total Time</span>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="progressChart"></canvas>
+            </div>
+            <div class="history-list" id="historyList">
+                <p class="empty-state">🌺 No sessions yet. Jump in!</p>
+            </div>
+        </div>
+
+        <!-- Chat Page -->
+        <div id="page-chat" class="page">
+            <div class="tropical-header">
+                <h1>🤖 Cold Coach</h1>
+                <p class="subtitle">AI-powered insights</p>
+            </div>
+            <div class="chat-container" id="chatContainer">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-message bot">
+                        <div class="message-bubble">
+                            Hey! I'm your Cold Plunge Coach 🌴 I can analyze your progress, give tips, adjust your goals, or log missed sessions. Just chat naturally! Make sure you've added your API key in settings.
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="btn btn-action" id="btnSummary">📊 Summary</button>
+                    <button class="btn btn-action" id="btnTips">💡 Tips</button>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ask your coach anything..." />
+                    <button class="btn btn-send" id="btnSend">🌊</button>
+                </div>
+            </div>
+            <div class="no-api-warning hidden" id="noApiWarning">
+                <p>⚠️ Add your Google AI Studio API key in Settings to enable the coach!</p>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="page-settings" class="page">
+            <div class="tropical-header">
+                <h1>⚙️ Settings</h1>
+                <p class="subtitle">Customize your experience</p>
+            </div>
+            <div class="settings-list">
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <span>🔥 Overclock Mode</span>
+                        <span class="setting-desc">Keep timing after goal is reached</span>
+                    </label>
+                    <label class="toggle">
+                        <input type="checkbox" id="overclockToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <span>🔔 Sound Effects</span>
+                        <span class="setting-desc">Play sounds on goal reached</span>
+                    </label>
+                    <label class="toggle">
+                        <input type="checkbox" id="soundToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <span>🎯 Manual Goal Override (seconds)</span>
+                        <span class="setting-desc">Leave empty for auto-scaling goals</span>
+                    </label>
+                    <input type="number" class="setting-input" id="manualGoal" placeholder="Auto" min="10" max="3600">
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <span>🤖 Google AI Studio API Key</span>
+                        <span class="setting-desc">Free key from aistudio.google.com</span>
+                    </label>
+                    <input type="password" class="setting-input" id="apiKey" placeholder="AIza...">
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <span>🧠 AI Model</span>
+                        <span class="setting-desc">Choose your coach's brain</span>
+                    </label>
+                    <select class="setting-input" id="aiModel">
+                        <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Default)</option>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast)</option>
+                        <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Fast)</option>
+                    </select>
+                </div>
+                <div class="setting-item danger-zone">
+                    <label class="setting-label">
+                        <span>🗑️ Danger Zone</span>
+                        <span class="setting-desc">This cannot be undone</span>
+                    </label>
+                    <button class="btn btn-danger" id="btnClearData">Clear All Data</button>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <span>💾 Export Data</span>
+                        <span class="setting-desc">Download your session history</span>
+                    </label>
+                    <button class="btn btn-export" id="btnExport">Export JSON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

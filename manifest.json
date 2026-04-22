@@ -2,7 +2,7 @@
     "name": "Cold Plunge Tracker",
     "short_name": "Cold Plunge",
     "description": "Track your cold water exposure journey 🌴",
-    "start_url": "/",
+    "start_url": ".",
     "display": "standalone",
     "background_color": "#f0faf5",
     "theme_color": "#00b894",

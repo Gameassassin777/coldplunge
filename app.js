@@ -1080,6 +1080,30 @@ RECENT SESSIONS (last ${last10.length}):
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(() => { });
         }
+
+        // --- Wake Lock (Keep Screen Awake) ---
+        let wakeLock = null;
+        const requestWakeLock = async () => {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (err) {
+                console.log('Wake Lock failed:', err.message);
+            }
+        };
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                requestWakeLock();
+            }
+        });
+
+        // Safari requires user interaction to enable wake lock
+        document.addEventListener('click', requestWakeLock, { once: true });
+        document.addEventListener('touchstart', requestWakeLock, { once: true });
+
+        requestWakeLock();
     }
 
     init();

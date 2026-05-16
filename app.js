@@ -922,32 +922,44 @@ RECENT SESSIONS (last ${last10.length}):
         return div.innerHTML;
     }
 
+    let chatInflight = false;
     async function handleChat(userMessage) {
+        // Guard against double-sends: previous request still in flight.
+        // Without this, rapid Enter / send-button clicks queue overlapping Gemini calls
+        // and produce out-of-order rendering plus double-charged API quota.
+        if (chatInflight) return;
+        chatInflight = true;
+        els.chatInput.disabled = true;
+        els.btnSend.disabled = true;
+
         addChatMessage(userMessage, 'user');
         state.chatHistory.push({ role: 'user', content: userMessage });
 
         addLoadingMessage();
 
-        const rawReply = await sendToGemini(state.chatHistory.slice(-20));
+        try {
+            const rawReply = await sendToGemini(state.chatHistory.slice(-20));
+            removeLoadingMessage();
 
-        removeLoadingMessage();
+            const { cleanText, commands } = parseAICommands(rawReply);
 
-        // Parse for commands
-        const { cleanText, commands } = parseAICommands(rawReply);
+            if (cleanText) {
+                addChatMessage(cleanText, 'bot');
+                state.chatHistory.push({ role: 'assistant', content: cleanText });
+            }
 
-        // Show clean reply
-        if (cleanText) {
-            addChatMessage(cleanText, 'bot');
-            state.chatHistory.push({ role: 'assistant', content: cleanText });
+            if (commands.length > 0) {
+                const results = executeAICommands(commands);
+                results.forEach(r => addSystemMessage(r));
+            }
+
+            save();
+        } finally {
+            chatInflight = false;
+            els.chatInput.disabled = false;
+            els.btnSend.disabled = false;
+            els.chatInput.focus();
         }
-
-        // Execute commands
-        if (commands.length > 0) {
-            const results = executeAICommands(commands);
-            results.forEach(r => addSystemMessage(r));
-        }
-
-        save();
     }
 
     async function handleSummary() {
@@ -1082,11 +1094,16 @@ RECENT SESSIONS (last ${last10.length}):
         }
 
         // --- Wake Lock (Keep Screen Awake) ---
+        // Track a single sentinel — without this guard, click/touchstart/visibilitychange
+        // each fire their own request and the older sentinels leak (only the first
+        // released event fires; the rest hang until GC).
         let wakeLock = null;
         const requestWakeLock = async () => {
+            if (wakeLock !== null) return; // Already held — don't stack subscriptions
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => { wakeLock = null; });
                 }
             } catch (err) {
                 console.log('Wake Lock failed:', err.message);
